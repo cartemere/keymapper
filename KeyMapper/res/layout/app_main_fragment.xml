@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+
+    <Button
+        android:id="@+id/button_choose_app"
+        android:text="@string/label_app_key"
+        android:layout_width="80sp"
+        android:layout_height="80sp" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10sp"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/label_app_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_app_title"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/label_app_package"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_app_package_default"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <!--
+            <ToggleButton
+                android:id="@+id/button_switch_dvd"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/label_button_switch_dvd" />-->
+
+    <Switch
+        android:id="@+id/button_app_enable"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

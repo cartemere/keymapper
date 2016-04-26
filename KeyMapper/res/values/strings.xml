@@ -4,18 +4,9 @@
     <string name="app_name">KeyMapper</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="label_dvd">Application touche DVD</string>
-    <string name="label_band">Label touche BAND</string>
-    <string name="label_bt">Label touche BT</string>
-    <string name="label_app_dvd_default">Aucune application sélectionnée</string>
-    <string name="label_app_band_default">Aucune application sélectionnée</string>
-    <string name="label_app_bt_default">Aucune application sélectionnée</string>
-    <string name="label_button_dvd">DVD</string>
-    <string name="label_button_band">BAND</string>
-    <string name="label_button_bt">BT</string>
-    <string name="label_button_switch_dvd">Enable DVD</string>
-    <string name="label_button_switch_band">Enable BAND</string>
-    <string name="label_button_switch_bt">Enable BT</string>
+    <string name="label_app_key">BTN</string>
+    <string name="label_app_title">Action associated</string>
+    <string name="label_app_package_default">No App selected</string>
     <string name="title_activity_app_selection">Select App for key</string>
-
+    
 </resources>

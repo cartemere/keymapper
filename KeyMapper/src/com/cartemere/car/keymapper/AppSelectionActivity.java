@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.cartemere.car.keymapper.dao.AppAssociationDAO;
+import com.cartemere.car.keymapper.model.AppAssociation;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -26,18 +29,23 @@ import android.widget.SimpleAdapter;
 
 public class AppSelectionActivity extends Activity {
 
+	public static final String PERSISTENCE_PACKAGE_PREFIX = "key_package_name_";
+	public static final String PERSISTENCE_ENABLE_PREFIX = "key_enable_";
 	private List<Map<String, String>> appPropertyList = null;
 	String iconKey = "icon";
 	String logoKey = "logo";
-	String nameKey = "name";
-	String packageKey = "package";
+	String appName = "name";
+	String appPackage = "package";
 	boolean cancelAppListLoad;
+	private AppAssociation parentAssociation = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_app_selection);
 
+		getParentAssociation();
+		
 		cancelAppListLoad = false;
 		ListView appSelectionListView = (ListView) findViewById(R.id.list_select_app);
 		appPropertyList = new ArrayList<Map<String, String>>();
@@ -74,8 +82,8 @@ public class AppSelectionActivity extends Activity {
 			propertyToValue = new HashMap<String, String>();
 			propertyToValue.put(iconKey, String.valueOf(appInfo.icon));
 			propertyToValue.put(logoKey, String.valueOf(appInfo.logo));
-			propertyToValue.put(nameKey, appInfo.loadLabel(pm).toString());
-			propertyToValue.put(packageKey, appInfo.packageName);
+			propertyToValue.put(appName, appInfo.loadLabel(pm).toString());
+			propertyToValue.put(appPackage, appInfo.packageName);
 			appPropertyList.add(propertyToValue);
 		}
 
@@ -87,7 +95,7 @@ public class AppSelectionActivity extends Activity {
 		// Map structure to display
 		SimpleAdapter mSchedule = new SimpleAdapter(this.getBaseContext(),
 				appPropertyList, R.layout.app_selection_fragment, new String[] {
-						iconKey, logoKey, nameKey }, new int[] {
+						iconKey, logoKey, appName }, new int[] {
 						R.id.app_selection_img, R.id.app_selection_logo,
 						R.id.app_selection_name });
 
@@ -100,23 +108,42 @@ public class AppSelectionActivity extends Activity {
 							int position, long id) {
 						final Map<String, String> propertyMap = appPropertyList
 								.get(position);
-						// TODO : attach selected app to related action
 						AlertDialog.Builder adb = new AlertDialog.Builder(
 								AppSelectionActivity.this);
-						adb.setTitle("Item selection");
-						adb.setMessage("App : " + propertyMap.get(nameKey)
-								+ "\nPackage : " + propertyMap.get(packageKey));
-						adb.setPositiveButton("Launch selected app",
+						
+						adb.setTitle("App selection for action " + parentAssociation.getKeyName());
+						String message = "App : " + propertyMap.get(appName)
+								+ "\nPackage : " + propertyMap.get(appPackage);
+						if (parentAssociation.getAppName() != null) {
+							message +=  "\n" + "\nPrevious App : " + parentAssociation.getAppName();
+						}
+						adb.setMessage(message);
+						adb.setPositiveButton("Set & Launch",
 								new DialogInterface.OnClickListener() {
 
 									@Override
 									public void onClick(DialogInterface dialog,
 											int which) {
-										launchSelectedApp(propertyMap
-												.get(packageKey));
+										parentAssociation.setAppName(propertyMap.get(appName));
+										parentAssociation.setAppPackageName(propertyMap.get(appPackage));
+										AppAssociationDAO dao = AppAssociationDAO.getInstance();
+			    						dao.updateAssociation(getApplicationContext(), parentAssociation);
+										launchSelectedApp(propertyMap.get(appPackage));
 									}
 								});
-						adb.setNegativeButton("OK", null);
+						adb.setNeutralButton("Set",
+								new DialogInterface.OnClickListener() {
+
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										parentAssociation.setAppName(propertyMap.get(appName));
+										parentAssociation.setAppPackageName(propertyMap.get(appPackage));
+										AppAssociationDAO dao = AppAssociationDAO.getInstance();
+			    						dao.updateAssociation(getApplicationContext(), parentAssociation);
+									}
+								});
+						adb.setNegativeButton("Cancel", null);
 						adb.show();
 					}
 				});
@@ -154,8 +181,8 @@ public class AppSelectionActivity extends Activity {
 				} else if (rhs == null) {
 					return 1;
 				} else {
-					String lhName = lhs.get(nameKey);
-					String rhName = rhs.get(nameKey);
+					String lhName = lhs.get(appName);
+					String rhName = rhs.get(appName);
 					if (lhName == null) {
 						return 0;
 					} else if (rhName == null) {
@@ -172,14 +199,19 @@ public class AppSelectionActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		Intent intent = getIntent();
-		if (intent != null) {
-			Bundle extras = intent.getExtras();
-			if (extras != null) {
-				String keyType = extras.getString(MainActivity.KEY_TYPE);
-				if (keyType != null) {
-					this.getActionBar().setTitle(
-							"Select app for key : " + keyType);
+		getParentAssociation();
+		this.getActionBar().setTitle(
+				"Select app for key : " + parentAssociation.getKeyName());
+	}
+
+	public void getParentAssociation() {
+		if (parentAssociation == null) {
+			Intent intent = getIntent();
+			if (intent != null) {
+				Bundle extras = intent.getExtras();
+				if (extras != null) {
+					parentAssociation = (AppAssociation) extras
+							.getSerializable(MainActivity.PROPERTY_ASSOCIATION);
 				}
 			}
 		}
