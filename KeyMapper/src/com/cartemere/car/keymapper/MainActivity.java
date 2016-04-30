@@ -30,16 +30,24 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-        // retrieve all datas
-        AppAssociationCache cache = AppAssociationCache.getInstance(getApplicationContext());
-        ArrayList<AppAssociation> associations = (ArrayList<AppAssociation>)cache.getAllAssociations();
-        
-        KeyDisplayAdapter adapter = new KeyDisplayAdapter(this, associations);
-        // Attach the adapter to a ListView
-        ListView appSelectionListView = (ListView) findViewById(R.id.list_key);
-        appSelectionListView.setAdapter(adapter);
-        
+        renderKeyEntries();
+    }
+    
+    @Override
+    protected void onRestart() {
+    	super.onRestart();
+    	renderKeyEntries();
+    }
+    
+    private void renderKeyEntries() {
+    	// retrieve all datas
+    	AppAssociationCache cache = AppAssociationCache.getInstance(getApplicationContext());
+    	ArrayList<AppAssociation> associations = (ArrayList<AppAssociation>)cache.getAllAssociations();
+    	
+    	KeyDisplayAdapter adapter = new KeyDisplayAdapter(this, associations);
+    	// Attach the adapter to a ListView
+    	ListView appSelectionListView = (ListView) findViewById(R.id.list_key);
+    	appSelectionListView.setAdapter(adapter);
     }
 
     @Override
@@ -60,6 +68,8 @@ public class MainActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
+    
+    
     
     public class KeyDisplayAdapter extends ArrayAdapter<AppAssociation> {
         

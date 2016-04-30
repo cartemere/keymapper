@@ -11,14 +11,7 @@
 		android:layout_height="30sp"
 	   	android:layout_gravity="center_vertical"
 	   	android:padding="0sp"
-		/>
-    
-        <ImageView
-		android:id="@+id/app_selection_logo"
-		android:layout_width="30sp"
-		android:layout_height="30sp"
-	   	android:layout_gravity="center_vertical"
-	   	android:padding="0sp"
+	   	android:contentDescription="App image"
 		/>
  
     <TextView android:id="@+id/app_selection_name"

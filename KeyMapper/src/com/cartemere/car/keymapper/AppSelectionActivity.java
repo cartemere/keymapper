@@ -32,7 +32,6 @@ public class AppSelectionActivity extends Activity {
 	public static final String PERSISTENCE_ENABLE_PREFIX = "key_enable_";
 	private List<Map<String, String>> appPropertyList = null;
 	String iconKey = "icon";
-	String logoKey = "logo";
 	String appName = "name";
 	String appPackage = "package";
 	boolean cancelAppListLoad;
@@ -82,7 +81,6 @@ public class AppSelectionActivity extends Activity {
 			// progressDialog.incrementProgressBy(1);
 			propertyToValue = new HashMap<String, String>();
 			propertyToValue.put(iconKey, String.valueOf(appInfo.icon));
-			propertyToValue.put(logoKey, String.valueOf(appInfo.logo));
 			propertyToValue.put(appName, appInfo.loadLabel(pm).toString());
 			propertyToValue.put(appPackage, appInfo.packageName);
 			appPropertyList.add(propertyToValue);
@@ -92,13 +90,11 @@ public class AppSelectionActivity extends Activity {
 		sortAppPropertyList();
 
 		progressDialog.dismiss();
-
 		// Map structure to display
 		SimpleAdapter mSchedule = new SimpleAdapter(this.getBaseContext(),
 				appPropertyList, R.layout.app_selection_fragment, new String[] {
-						iconKey, logoKey, appName }, new int[] {
-						R.id.app_selection_img, R.id.app_selection_logo,
-						R.id.app_selection_name });
+						iconKey, appName }, new int[] {
+						R.id.app_selection_img, R.id.app_selection_name });
 
 		appSelectionListView.setAdapter(mSchedule);
 
@@ -129,6 +125,7 @@ public class AppSelectionActivity extends Activity {
 										parentAssociation.setAppPackageName(propertyMap.get(appPackage));
 								        AppAssociationCache cache = AppAssociationCache.getInstance(getApplicationContext());
 								        cache.updateAssociationByKey(getApplicationContext(), parentAssociation);
+								        // launch selected app
 										KeyMapperAction.launchSelectedApp(instance, propertyMap.get(appPackage));
 									}
 								});
@@ -142,6 +139,8 @@ public class AppSelectionActivity extends Activity {
 										parentAssociation.setAppPackageName(propertyMap.get(appPackage));
 										AppAssociationCache cache = AppAssociationCache.getInstance(getApplicationContext());
 								        cache.updateAssociationByKey(getApplicationContext(), parentAssociation);
+								        // close current activity (come back to main activity)
+								        instance.finish();
 									}
 								});
 						adb.setNegativeButton("Cancel", null);
