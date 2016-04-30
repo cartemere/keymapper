@@ -28,6 +28,7 @@ public class KeyMapperAction {
 			// launch target activity
 			launchIntent = context.getPackageManager().getLaunchIntentForPackage(
 					packageName);
+			Log.i(LOG_KEY, "launch app " + packageName + " from scratch");
 		}
 		context.startActivity(launchIntent);
 	}

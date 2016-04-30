@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.cartemere.car.keymapper.action.KeyMapperAction;
-import com.cartemere.car.keymapper.dao.AppAssociationDAO;
+import com.cartemere.car.keymapper.cache.AppAssociationCache;
 import com.cartemere.car.keymapper.model.AppAssociation;
 
 import android.app.Activity;
@@ -127,8 +127,8 @@ public class AppSelectionActivity extends Activity {
 											int which) {
 										parentAssociation.setAppName(propertyMap.get(appName));
 										parentAssociation.setAppPackageName(propertyMap.get(appPackage));
-										AppAssociationDAO dao = AppAssociationDAO.getInstance();
-			    						dao.updateAssociation(getApplicationContext(), parentAssociation);
+								        AppAssociationCache cache = AppAssociationCache.getInstance(getApplicationContext());
+								        cache.updateAssociationByKey(getApplicationContext(), parentAssociation);
 										KeyMapperAction.launchSelectedApp(instance, propertyMap.get(appPackage));
 									}
 								});
@@ -140,8 +140,8 @@ public class AppSelectionActivity extends Activity {
 											int which) {
 										parentAssociation.setAppName(propertyMap.get(appName));
 										parentAssociation.setAppPackageName(propertyMap.get(appPackage));
-										AppAssociationDAO dao = AppAssociationDAO.getInstance();
-			    						dao.updateAssociation(getApplicationContext(), parentAssociation);
+										AppAssociationCache cache = AppAssociationCache.getInstance(getApplicationContext());
+								        cache.updateAssociationByKey(getApplicationContext(), parentAssociation);
 									}
 								});
 						adb.setNegativeButton("Cancel", null);
@@ -149,7 +149,7 @@ public class AppSelectionActivity extends Activity {
 					}
 				});
 	}
-
+	
 	private void sortAppPropertyList() {
 		Comparator<Map<String, String>> comparator = new Comparator<Map<String, String>>() {
 

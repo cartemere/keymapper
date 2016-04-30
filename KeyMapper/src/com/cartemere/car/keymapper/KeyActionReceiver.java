@@ -1,7 +1,7 @@
 package com.cartemere.car.keymapper;
 
 import com.cartemere.car.keymapper.action.KeyMapperAction;
-import com.cartemere.car.keymapper.dao.AppAssociationDAO;
+import com.cartemere.car.keymapper.cache.AppAssociationCache;
 import com.cartemere.car.keymapper.model.AppAssociation;
 
 import android.content.BroadcastReceiver;
@@ -22,11 +22,18 @@ public class KeyActionReceiver extends BroadcastReceiver {
     	String eventName = intent.getAction();
 		// retrieve related AppAssociation
     	Log.i(LOG_KEY, "received event : " + eventName);
-		AppAssociation appAssociation = AppAssociationDAO.getInstance()
-				.loadAssociationFromEvent(context, eventName);
-		if (appAssociation.getIsKeyMappingEnabled()) {
-			String packageName = appAssociation.getAppPackageName();
-			KeyMapperAction.launchSelectedApp(context, packageName);
+    	AppAssociationCache cache = AppAssociationCache.getInstance(context);
+    	AppAssociation appAssociation = cache.getAssociationFromEvent(context, eventName);
+		if (appAssociation != null) {
+			if (appAssociation.getIsKeyMappingEnabled()) {
+				String packageName = appAssociation.getAppPackageName();
+				KeyMapperAction.launchSelectedApp(context, packageName);
+			} else {
+				Log.w(LOG_KEY, "Mapping disabled for event : " + eventName);
+			}
+		} else {
+			Log.e(LOG_KEY, "received unexpected event : " + eventName);
 		}
+		
     }
 }

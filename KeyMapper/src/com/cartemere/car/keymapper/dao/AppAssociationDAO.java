@@ -1,7 +1,6 @@
 package com.cartemere.car.keymapper.dao;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.cartemere.car.keymapper.model.AppAssociation;
-import com.cartemere.car.keymapper.properties.PropertiesReader;
 
 /**
  * Provide accessor to the Association persistence layer
@@ -18,8 +16,7 @@ import com.cartemere.car.keymapper.properties.PropertiesReader;
  */
 public class AppAssociationDAO {
 	
-	
-	private static String LOG_KEY = "DAO";
+	private static String LOG_KEY = "AppAssociationDAO";
 	public static String TABLE_NAME = "T_APP_ASSOCIATION";
 	public static String COLUMN_NAME_KEY = "keyName";
 	public static String COLUMN_EVENT = "event";
@@ -38,50 +35,20 @@ public class AppAssociationDAO {
 	
 	public static String SQL_INIT_POPULATE_TABLE = "";
 	
-	private static AppAssociationDAO instance = null;
+	private String[] projection = { 
+			COLUMN_NAME_KEY,
+			COLUMN_EVENT,
+			COLUMN_APP_NAME_KEY,
+			COLUMN_NAME_PACKAGE,
+			COLUMN_NAME_ENABLED };
 	
-	public static AppAssociationDAO getInstance() {
-		if (instance == null)  {
-			instance = new AppAssociationDAO();
-		}
-		return instance;
-	}
-
-	public ArrayList<AppAssociation> loadAllAssociationWithInit(Context context) {
-		ArrayList<AppAssociation> allResult = loadAllAssociations(context);
-		if (allResult.size() == 0) {
-			Log.i(LOG_KEY, "DB is empty, init content...");
-			initDBContent(null, context);
-			allResult = loadAllAssociations(context);
-		}
-		return allResult;
-	}
-	/**
-	 * populate the DB. To be called only on the first launch
-	 * @param context
-	 */
-	public void initDBContent(KeyMapperDbHelper dbHelper, Context context) {
-		
-		PropertiesReader pReader = new PropertiesReader(context);
-		Collection<AppAssociation> associations = pReader.getDefaultAssociations();
-		for (AppAssociation association : associations) {
-			createAssociation(context, association);
-		}
-	}
-	
-	
-	public AppAssociation loadAssociationFromEvent(Context context,
+	public AppAssociation loadAssociationFromDBByEvent(Context context,
 			String eventKey) {
 		KeyMapperDbHelper dbHelper = new KeyMapperDbHelper(context);
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		AppAssociation association = null;
+		Log.i(LOG_KEY, "load association for event : " + eventKey);
 		try {
-			// declare projection
-			String[] projection = { 
-					COLUMN_NAME_KEY,
-					COLUMN_EVENT,
-					COLUMN_APP_NAME_KEY,
-					COLUMN_NAME_PACKAGE,
-					COLUMN_NAME_ENABLED };
 			String whereClause = COLUMN_EVENT + "=?";
 
 			// query DB
@@ -90,44 +57,23 @@ public class AppAssociationDAO {
 
 			// parse result
 			cursor.moveToFirst();
-			if (cursor.getCount() < 1) {
-				String errorMessage = "No record found for key = " + eventKey ;
-				Log.e(LOG_KEY, errorMessage);
-				throw new IllegalArgumentException(errorMessage);
+			if (cursor.getCount() > 0) {
+				association = createAssociationFromCursor(cursor);
+				
+
 			}
-			String keyName = cursor.getString(cursor
-					.getColumnIndexOrThrow(COLUMN_NAME_KEY));
-			String event = cursor.getString(cursor
-					.getColumnIndexOrThrow(COLUMN_EVENT));
-			String appName = cursor.getString(cursor
-					.getColumnIndexOrThrow(COLUMN_APP_NAME_KEY));
-			String appPackageName = cursor.getString(cursor
-					.getColumnIndexOrThrow(COLUMN_NAME_PACKAGE));
-			Integer isEnabledAsInt = cursor.getInt(cursor
-					.getColumnIndexOrThrow(COLUMN_NAME_ENABLED));
-
-			// build output structure
-			AppAssociation association = new AppAssociation(keyName,event,
-					appName, appPackageName, isEnabledAsInt == 1);
-
 			return association;
 		} finally {
 			db.close();
 		}
 	}
+
 	
-	public ArrayList<AppAssociation> loadAllAssociations(Context context) {
+	public ArrayList<AppAssociation> loadAllAssociationsFromDB(Context context) {
 		ArrayList<AppAssociation> result = new ArrayList< AppAssociation>();
 		KeyMapperDbHelper dbHelper = new KeyMapperDbHelper(context);
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		try {
-			// declare projection
-			String[] projection = { 
-					COLUMN_NAME_KEY,
-					COLUMN_EVENT,
-					COLUMN_APP_NAME_KEY,
-					COLUMN_NAME_PACKAGE,
-					COLUMN_NAME_ENABLED };
 			String sortOrder = COLUMN_NAME_KEY + " DESC";
 
 			// query DB
@@ -137,20 +83,7 @@ public class AppAssociationDAO {
 			// parse result
 			cursor.moveToFirst();
 			while (!cursor.isAfterLast()) {
-				String keyName = cursor.getString(cursor
-						.getColumnIndexOrThrow(COLUMN_NAME_KEY));
-				String event = cursor.getString(cursor
-						.getColumnIndexOrThrow(COLUMN_EVENT));
-				String appName = cursor.getString(cursor
-						.getColumnIndexOrThrow(COLUMN_APP_NAME_KEY));
-				String appPackageName = cursor.getString(cursor
-						.getColumnIndexOrThrow(COLUMN_NAME_PACKAGE));
-				Integer isEnabledAsInt = cursor.getInt(cursor
-						.getColumnIndexOrThrow(COLUMN_NAME_ENABLED));
-				
-				// build output structure
-				AppAssociation association = new AppAssociation(keyName, event, 
-						appName, appPackageName, isEnabledAsInt == 1);
+				AppAssociation association = createAssociationFromCursor(cursor);
 				result.add(association);
 				cursor.moveToNext();
 			}
@@ -160,7 +93,7 @@ public class AppAssociationDAO {
 		}
 	}
 	
-	public void deleteAssociation(Context context, AppAssociation association) {
+	public void deleteAssociationInDB(Context context, AppAssociation association) {
 		KeyMapperDbHelper dbHelper = new KeyMapperDbHelper(context);
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		try {
@@ -173,7 +106,7 @@ public class AppAssociationDAO {
 		}
 	}
 	
-	public void createAssociation(Context context, AppAssociation association) {
+	public void createAssociationInDB(Context context, AppAssociation association) {
 		KeyMapperDbHelper dbHelper = new KeyMapperDbHelper(context);
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		try {
@@ -194,9 +127,29 @@ public class AppAssociationDAO {
 		}
 	}
 	
-	public AppAssociation updateAssociation(Context context,AppAssociation association) {
-		deleteAssociation(context, association);
-		createAssociation(context, association);
+	public AppAssociation updateAssociationInDB(Context context,AppAssociation association) {
+		deleteAssociationInDB(context, association);
+		createAssociationInDB(context, association);
+		return association;
+	}
+	
+
+	private AppAssociation createAssociationFromCursor(Cursor cursor) {
+		AppAssociation association;
+		String keyName = cursor.getString(cursor
+				.getColumnIndexOrThrow(COLUMN_NAME_KEY));
+		String event = cursor.getString(cursor
+				.getColumnIndexOrThrow(COLUMN_EVENT));
+		String appName = cursor.getString(cursor
+				.getColumnIndexOrThrow(COLUMN_APP_NAME_KEY));
+		String appPackageName = cursor.getString(cursor
+				.getColumnIndexOrThrow(COLUMN_NAME_PACKAGE));
+		Integer isEnabledAsInt = cursor.getInt(cursor
+				.getColumnIndexOrThrow(COLUMN_NAME_ENABLED));
+		
+		// build output structure
+		association = new AppAssociation(keyName,event,
+				appName, appPackageName, isEnabledAsInt == 1);
 		return association;
 	}
 	

@@ -2,7 +2,7 @@
 
 import java.util.ArrayList;
 
-import com.cartemere.car.keymapper.dao.AppAssociationDAO;
+import com.cartemere.car.keymapper.cache.AppAssociationCache;
 import com.cartemere.car.keymapper.model.AppAssociation;
 
 import android.app.Activity;
@@ -32,10 +32,10 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         // retrieve all datas
-        AppAssociationDAO dao = AppAssociationDAO.getInstance();
-        ArrayList<AppAssociation> associations = dao.loadAllAssociationWithInit(getApplicationContext());
+        AppAssociationCache cache = AppAssociationCache.getInstance(getApplicationContext());
+        ArrayList<AppAssociation> associations = (ArrayList<AppAssociation>)cache.getAllAssociations();
         
-        EfficientAdapter adapter = new EfficientAdapter(this, associations);
+        KeyDisplayAdapter adapter = new KeyDisplayAdapter(this, associations);
         // Attach the adapter to a ListView
         ListView appSelectionListView = (ListView) findViewById(R.id.list_key);
         appSelectionListView.setAdapter(adapter);
@@ -61,11 +61,11 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
     
-    public class EfficientAdapter extends ArrayAdapter<AppAssociation> {
+    public class KeyDisplayAdapter extends ArrayAdapter<AppAssociation> {
         
     	final Activity referenceActivity;
 
-        public EfficientAdapter(Activity activity, ArrayList<AppAssociation> associations) {
+        public KeyDisplayAdapter(Activity activity, ArrayList<AppAssociation> associations) {
             super(activity, 0, associations);
             this.referenceActivity = activity;
          }
@@ -107,8 +107,7 @@ public class MainActivity extends Activity {
             viewHolder.btnChooseApp.setOnClickListener(new View.OnClickListener() {
     			@Override
     			public void onClick(View v) {
-    				//manager.actionChoose(referenceActivity);
-    				// move to second view
+    				// move to App selection activity
     		    	Intent intent = new Intent();
     		    	intent.setClass(referenceActivity, AppSelectionActivity.class);
     		    	intent.putExtra(PROPERTY_ASSOCIATION, association);
@@ -124,8 +123,8 @@ public class MainActivity extends Activity {
     					public void onCheckedChanged(CompoundButton buttonView,
     							boolean isChecked) {
     						association.setIsKeyMappingEnabled(isChecked);
-    						AppAssociationDAO dao = AppAssociationDAO.getInstance();
-    						dao.updateAssociation(referenceActivity, association);
+    						AppAssociationCache cache = AppAssociationCache.getInstance(getApplicationContext());
+    						cache.updateAssociationByKey(getApplicationContext(), association);
     					}
     				});
     		

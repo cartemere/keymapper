@@ -41,6 +41,10 @@ public class PropertiesReader {
 		return properties;
 	}
 	
+	/**
+	 * Init AppAssociations by loading default keys in properties file 
+	 * @return List of key AppAssociation to handle
+	 */
 	public List<AppAssociation> getDefaultAssociations() {
 		List<AppAssociation> associations = new ArrayList<AppAssociation>();
 		Properties properties = getProperties(PROPERTIES_FILE_NAME);
@@ -55,6 +59,7 @@ public class PropertiesReader {
 			if (event == null || event.isEmpty()) {
 				throw new IllegalArgumentException("entry " + PROPERTIES_KEY_PREFIX + keyName + " not found in " + PROPERTIES_FILE_NAME);
 			}
+			Log.i(LOG_TAG, "association " + keyName + "=" + event);
 			AppAssociation association = new AppAssociation(keyName, event, null, null, false);
 			associations.add(association);
 		}

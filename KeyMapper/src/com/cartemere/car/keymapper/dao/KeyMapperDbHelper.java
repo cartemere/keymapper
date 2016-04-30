@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
+ * Low level DB management
  * @author cartemere
  */
 public class KeyMapperDbHelper extends SQLiteOpenHelper {

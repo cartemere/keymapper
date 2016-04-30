@@ -9,10 +9,15 @@ import java.io.Serializable;
 public class AppAssociation implements Serializable {
 
 	private static final long serialVersionUID = 20160425L;
+	/** key name (i.e. 'DVD')*/
 	private String keyName = null;
-	private String event = null;
-	private String appName = null;
+	/** event related to the key */
+	private String event = null; 
+	/** app name associated */
+	private String appName = null; 
+	/** app package associated */
 	private String appPackageName = null;
+	/** key mapping enabled status */
 	private Boolean isKeyMappingEnabled = null;
 	
 	public AppAssociation(String keyName, String event, String appName,
