@@ -27,10 +27,20 @@
             </intent-filter>
         </activity>
         
+        
         <activity
             android:name=".AppSelectionActivity"
             android:label="@string/title_activity_app_selection" >
         </activity>
+        
+        <receiver class="com.cartemere.car.keymapper.KeyActionReceiver"
+            android:name=".KeyActionReceiver">
+            <intent-filter>
+                <action android:name="cn.com.cs2c.android.vehicle.action.RADIO_KEY"/>
+                <action android:name="cn.com.cs2c.android.vehicle.action.DVD_KEY"/>
+                <action android:name="cn.com.cs2c.android.vehicle.action.BT_KEY"/>
+            </intent-filter>
+        </receiver>
         
     </application>
     

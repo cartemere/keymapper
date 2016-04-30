@@ -1,6 +1,7 @@
 package com.cartemere.car.keymapper.dao;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.cartemere.car.keymapper.model.AppAssociation;
+import com.cartemere.car.keymapper.properties.PropertiesReader;
 
 /**
  * Provide accessor to the Association persistence layer
@@ -16,15 +18,18 @@ import com.cartemere.car.keymapper.model.AppAssociation;
  */
 public class AppAssociationDAO {
 	
-	private static String LOG_KEY = "";
+	
+	private static String LOG_KEY = "DAO";
 	public static String TABLE_NAME = "T_APP_ASSOCIATION";
 	public static String COLUMN_NAME_KEY = "keyName";
+	public static String COLUMN_EVENT = "event";
 	public static String COLUMN_APP_NAME_KEY = "appName";
 	public static String COLUMN_NAME_PACKAGE = "packageName";
 	public static String COLUMN_NAME_ENABLED = "isEnabled";
 	
 	public static String SQL_INIT_CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " (" 
 	 + COLUMN_NAME_KEY + " CHAR(20) NOT NULL,"
+	 + COLUMN_EVENT + " CHAR(50) NOT NULL,"
 	 + COLUMN_APP_NAME_KEY + " CHAR(20), "
 	 + COLUMN_NAME_PACKAGE + " CHAR(50), "
 	 + COLUMN_NAME_ENABLED + " INT NOT NULL" + ")";
@@ -43,11 +48,11 @@ public class AppAssociationDAO {
 	}
 
 	public ArrayList<AppAssociation> loadAllAssociationWithInit(Context context) {
-		ArrayList<AppAssociation> allResult = loadAllAssociationsByKey(context);
+		ArrayList<AppAssociation> allResult = loadAllAssociations(context);
 		if (allResult.size() == 0) {
 			Log.i(LOG_KEY, "DB is empty, init content...");
 			initDBContent(null, context);
-			allResult = loadAllAssociationsByKey(context);
+			allResult = loadAllAssociations(context);
 		}
 		return allResult;
 	}
@@ -56,46 +61,54 @@ public class AppAssociationDAO {
 	 * @param context
 	 */
 	public void initDBContent(KeyMapperDbHelper dbHelper, Context context) {
-		for (String keyName : new String[] {"DVD", "BAND", "BT"}) {
-			AppAssociation association = new AppAssociation(keyName, null, null, false);
+		
+		PropertiesReader pReader = new PropertiesReader(context);
+		Collection<AppAssociation> associations = pReader.getDefaultAssociations();
+		for (AppAssociation association : associations) {
 			createAssociation(context, association);
 		}
 	}
 	
-	public AppAssociation loadAssociationFromKey(Context context,
-			String inputKeyName) {
+	
+	public AppAssociation loadAssociationFromEvent(Context context,
+			String eventKey) {
 		KeyMapperDbHelper dbHelper = new KeyMapperDbHelper(context);
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		try {
 			// declare projection
 			String[] projection = { 
 					COLUMN_NAME_KEY,
+					COLUMN_EVENT,
 					COLUMN_APP_NAME_KEY,
 					COLUMN_NAME_PACKAGE,
 					COLUMN_NAME_ENABLED };
+			String whereClause = COLUMN_EVENT + "=?";
 
 			// query DB
-			Cursor cursor = db.query(TABLE_NAME, projection, COLUMN_NAME_KEY,
-					new String[] { inputKeyName }, null, null, null);
+			Cursor cursor = db.query(TABLE_NAME, projection, whereClause,
+					new String[] { eventKey }, null, null, null);
 
 			// parse result
 			cursor.moveToFirst();
 			if (cursor.getCount() < 1) {
-				throw new IllegalArgumentException("No record found for key = "
-						+ inputKeyName);
+				String errorMessage = "No record found for key = " + eventKey ;
+				Log.e(LOG_KEY, errorMessage);
+				throw new IllegalArgumentException(errorMessage);
 			}
 			String keyName = cursor.getString(cursor
 					.getColumnIndexOrThrow(COLUMN_NAME_KEY));
+			String event = cursor.getString(cursor
+					.getColumnIndexOrThrow(COLUMN_EVENT));
 			String appName = cursor.getString(cursor
-							.getColumnIndexOrThrow(COLUMN_APP_NAME_KEY));
+					.getColumnIndexOrThrow(COLUMN_APP_NAME_KEY));
 			String appPackageName = cursor.getString(cursor
-					.getColumnIndexOrThrow(COLUMN_NAME_KEY));
+					.getColumnIndexOrThrow(COLUMN_NAME_PACKAGE));
 			Integer isEnabledAsInt = cursor.getInt(cursor
 					.getColumnIndexOrThrow(COLUMN_NAME_ENABLED));
 
 			// build output structure
-			AppAssociation association = new AppAssociation(keyName,appName,
-					appPackageName, isEnabledAsInt == 1);
+			AppAssociation association = new AppAssociation(keyName,event,
+					appName, appPackageName, isEnabledAsInt == 1);
 
 			return association;
 		} finally {
@@ -103,7 +116,7 @@ public class AppAssociationDAO {
 		}
 	}
 	
-	public ArrayList<AppAssociation> loadAllAssociationsByKey(Context context) {
+	public ArrayList<AppAssociation> loadAllAssociations(Context context) {
 		ArrayList<AppAssociation> result = new ArrayList< AppAssociation>();
 		KeyMapperDbHelper dbHelper = new KeyMapperDbHelper(context);
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -111,6 +124,7 @@ public class AppAssociationDAO {
 			// declare projection
 			String[] projection = { 
 					COLUMN_NAME_KEY,
+					COLUMN_EVENT,
 					COLUMN_APP_NAME_KEY,
 					COLUMN_NAME_PACKAGE,
 					COLUMN_NAME_ENABLED };
@@ -125,6 +139,8 @@ public class AppAssociationDAO {
 			while (!cursor.isAfterLast()) {
 				String keyName = cursor.getString(cursor
 						.getColumnIndexOrThrow(COLUMN_NAME_KEY));
+				String event = cursor.getString(cursor
+						.getColumnIndexOrThrow(COLUMN_EVENT));
 				String appName = cursor.getString(cursor
 						.getColumnIndexOrThrow(COLUMN_APP_NAME_KEY));
 				String appPackageName = cursor.getString(cursor
@@ -133,8 +149,8 @@ public class AppAssociationDAO {
 						.getColumnIndexOrThrow(COLUMN_NAME_ENABLED));
 				
 				// build output structure
-				AppAssociation association = new AppAssociation(keyName, appName, 
-						appPackageName, isEnabledAsInt == 1);
+				AppAssociation association = new AppAssociation(keyName, event, 
+						appName, appPackageName, isEnabledAsInt == 1);
 				result.add(association);
 				cursor.moveToNext();
 			}
@@ -164,6 +180,7 @@ public class AppAssociationDAO {
 			Log.i(LOG_KEY, "insert association : " + association);
 			ContentValues values = new ContentValues();
 			values.put(COLUMN_NAME_KEY, association.getKeyName());
+			values.put(COLUMN_EVENT, association.getEvent());
 			values.put(COLUMN_APP_NAME_KEY, association.getAppName());
 			values.put(COLUMN_NAME_PACKAGE, association.getAppPackageName());
 			values.put(COLUMN_NAME_ENABLED, association.getIsKeyMappingEnabled().booleanValue() ? 1 : 0);

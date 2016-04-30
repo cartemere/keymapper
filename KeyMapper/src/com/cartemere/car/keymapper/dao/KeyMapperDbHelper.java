@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * @author cartemere
  */
 public class KeyMapperDbHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 25042016;
+    public static final int DATABASE_VERSION = 28042016;
     public static final String DATABASE_NAME = "KeyMapper.db";
     
     public KeyMapperDbHelper(Context context) {

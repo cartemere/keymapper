@@ -7,14 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.cartemere.car.keymapper.action.KeyMapperAction;
 import com.cartemere.car.keymapper.dao.AppAssociationDAO;
 import com.cartemere.car.keymapper.model.AppAssociation;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -38,10 +37,12 @@ public class AppSelectionActivity extends Activity {
 	String appPackage = "package";
 	boolean cancelAppListLoad;
 	private AppAssociation parentAssociation = null;
+	private Activity instance;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		instance = this;
 		setContentView(R.layout.activity_app_selection);
 
 		getParentAssociation();
@@ -86,11 +87,11 @@ public class AppSelectionActivity extends Activity {
 			propertyToValue.put(appPackage, appInfo.packageName);
 			appPropertyList.add(propertyToValue);
 		}
-
-		progressDialog.dismiss();
-
+		
 		// reorder elements to display
 		sortAppPropertyList();
+
+		progressDialog.dismiss();
 
 		// Map structure to display
 		SimpleAdapter mSchedule = new SimpleAdapter(this.getBaseContext(),
@@ -128,7 +129,7 @@ public class AppSelectionActivity extends Activity {
 										parentAssociation.setAppPackageName(propertyMap.get(appPackage));
 										AppAssociationDAO dao = AppAssociationDAO.getInstance();
 			    						dao.updateAssociation(getApplicationContext(), parentAssociation);
-										launchSelectedApp(propertyMap.get(appPackage));
+										KeyMapperAction.launchSelectedApp(instance, propertyMap.get(appPackage));
 									}
 								});
 						adb.setNeutralButton("Set",
@@ -147,28 +148,6 @@ public class AppSelectionActivity extends Activity {
 						adb.show();
 					}
 				});
-	}
-
-	private void launchSelectedApp(String packageName) {
-		// check if target activity is already running
-		Intent launchIntent = null;
-		ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-		String className = null;
-		for (ActivityManager.RunningTaskInfo info : am.getRunningTasks(9999)) {
-			if (packageName.equals(info.baseActivity.getPackageName())) {
-				className = info.baseActivity.getClassName();
-				launchIntent = new Intent();
-				launchIntent.setClassName(packageName, className);
-				launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				break;
-			}
-		}
-		if (className == null) {
-			// launch target activity
-			launchIntent = getPackageManager().getLaunchIntentForPackage(
-					packageName);
-		}
-		startActivity(launchIntent);
 	}
 
 	private void sortAppPropertyList() {

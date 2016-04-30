@@ -10,14 +10,16 @@ public class AppAssociation implements Serializable {
 
 	private static final long serialVersionUID = 20160425L;
 	private String keyName = null;
+	private String event = null;
 	private String appName = null;
 	private String appPackageName = null;
 	private Boolean isKeyMappingEnabled = null;
 	
-	public AppAssociation(String keyName, String appName, String appPackageName,
-			Boolean isKeyMappingEnabled) {
+	public AppAssociation(String keyName, String event, String appName,
+			String appPackageName, Boolean isKeyMappingEnabled) {
 		super();
 		this.keyName = keyName;
+		this.event = event;
 		this.appName = appName;
 		this.appPackageName = appPackageName;
 		this.isKeyMappingEnabled = isKeyMappingEnabled;
@@ -27,10 +29,10 @@ public class AppAssociation implements Serializable {
 		return keyName;
 	}
 	
-	public void setKeyName(String keyName) {
-		this.keyName = keyName;
+	public String getEvent() {
+		return event;
 	}
-	
+
 	public String getAppName() {
 		return appName;
 	}
@@ -59,6 +61,7 @@ public class AppAssociation implements Serializable {
 		result = prime * result + ((appName == null) ? 0 : appName.hashCode());
 		result = prime * result
 				+ ((appPackageName == null) ? 0 : appPackageName.hashCode());
+		result = prime * result + ((event == null) ? 0 : event.hashCode());
 		result = prime
 				* result
 				+ ((isKeyMappingEnabled == null) ? 0 : isKeyMappingEnabled
@@ -86,6 +89,11 @@ public class AppAssociation implements Serializable {
 				return false;
 		} else if (!appPackageName.equals(other.appPackageName))
 			return false;
+		if (event == null) {
+			if (other.event != null)
+				return false;
+		} else if (!event.equals(other.event))
+			return false;
 		if (isKeyMappingEnabled == null) {
 			if (other.isKeyMappingEnabled != null)
 				return false;
@@ -101,10 +109,11 @@ public class AppAssociation implements Serializable {
 
 	@Override
 	public String toString() {
-		return "AppAssociation [keyName=" + keyName + ", appName=" + appName
-				+ ", appPackageName=" + appPackageName
+		return "AppAssociation [keyName=" + keyName + ", event=" + event
+				+ ", appName=" + appName + ", appPackageName=" + appPackageName
 				+ ", isKeyMappingEnabled=" + isKeyMappingEnabled + "]";
 	}
+
 	
 	
 }

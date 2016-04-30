@@ -24,6 +24,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	public static final String PROPERTY_ASSOCIATION = "association";
+	public static final String PROPERTY_APP_LIST = "appList";
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +116,7 @@ public class MainActivity extends Activity {
     			}
     		});
 
-            viewHolder.btnSwitch.setActivated(association.getIsKeyMappingEnabled());
+            viewHolder.btnSwitch.setChecked(association.getIsKeyMappingEnabled());
             viewHolder.btnSwitch.setEnabled(association.getAppPackageName() != null);
             viewHolder.btnSwitch
     				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
