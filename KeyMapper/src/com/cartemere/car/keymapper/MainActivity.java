@@ -106,10 +106,10 @@ public class MainActivity extends Activity {
             }
             // Populate the data into the template view using the data object
             
-            viewHolder.appTitle.setText("Select app for key " + association.getKeyName());
+            viewHolder.appTitle.setText(getString(R.string.label_app_name_title) + association.getKeyName());
             String appName = association.getAppName();
             if (appName == null) {
-            	appName = "[no app selected]";
+            	appName = getString(R.string.label_app_name_default);
             }
             viewHolder.appName.setText(appName);
             

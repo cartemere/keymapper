@@ -14,12 +14,12 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/link_launcher"
-        android:label="@string/app_name"
+        android:label="@string/label_app_title"
         android:theme="@style/AppTheme" >
         
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/label_app_title" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,7 +30,7 @@
         
         <activity
             android:name=".AppSelectionActivity"
-            android:label="@string/title_activity_app_selection" >
+            android:label="@string/label_select_title" >
         </activity>
         
         <receiver class="com.cartemere.car.keymapper.KeyActionReceiver"
@@ -39,6 +39,7 @@
                 <action android:name="cn.com.cs2c.android.vehicle.action.RADIO_KEY"/>
                 <action android:name="cn.com.cs2c.android.vehicle.action.DVD_KEY"/>
                 <action android:name="cn.com.cs2c.android.vehicle.action.BT_KEY"/>
+                <!-- New events to listen MUST be declared here (for Android OS to route events to the ActionReceiver) -->
             </intent-filter>
         </receiver>
         

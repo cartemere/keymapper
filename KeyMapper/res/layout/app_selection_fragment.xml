@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    >
- 
+    android:orientation="horizontal" >
+
     <ImageView
-		android:id="@+id/app_selection_img"
-		android:layout_width="30sp"
-		android:layout_height="30sp"
-	   	android:layout_gravity="center_vertical"
-	   	android:padding="0sp"
-	   	android:contentDescription="App image"
-		/>
- 
-    <TextView android:id="@+id/app_selection_name"
-        	android:paddingLeft="10sp"
-	         android:layout_width="0dp"
-	         android:layout_height="wrap_content"
-	   	android:layout_gravity="center_vertical"
-	         android:textSize="30sp"
-	         android:layout_weight="1"
-	         />
- 
+        android:id="@+id/app_selection_img"
+        android:layout_width="30sp"
+        android:layout_height="30sp"
+        android:layout_gravity="center_vertical"
+        android:contentDescription="@string/label_select_image_name"
+        android:padding="0sp" />
+
+    <TextView
+        android:id="@+id/app_selection_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:paddingStart="10sp"
+        android:textSize="30sp" />
+
 </LinearLayout>

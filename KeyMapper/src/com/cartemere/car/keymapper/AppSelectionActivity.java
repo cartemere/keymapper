@@ -27,7 +27,7 @@ public class AppSelectionActivity extends Activity {
 		task = new AppListTask(this, progressDialog);
 
 		// init progress bar
-		progressDialog.setTitle("Loading list of installed apps");
+		progressDialog.setTitle(getString(R.string.label_progress_title));
 		progressDialog.setCancelable(true);
 		progressDialog.setProgress(0);
 		progressDialog.setMax(100);
@@ -49,8 +49,8 @@ public class AppSelectionActivity extends Activity {
 	public void onResume() {
 		super.onResume();
 		getParentAssociation();
-		this.getActionBar().setTitle(
-				"Select app for key : " + parentAssociation.getKeyName());
+		this.getActionBar().setTitle(getString(R.string.label_select_title) + " " +
+				parentAssociation.getKeyName());
 	}
 
 	public AppAssociation getParentAssociation() {

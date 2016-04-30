@@ -136,33 +136,31 @@ public class AppListTask extends AsyncTask<Void, Integer, SimpleAdapter> {
 								View view, int position, long id) {
 							final Map<String, String> propertyMap = appPropertyList
 									.get(position);
+							final AppAssociation parentAssociation = activity
+									.getParentAssociation();
 							AlertDialog.Builder adb = new AlertDialog.Builder(
 									activity);
 
-							AppAssociation parentAssociation = activity
-									.getParentAssociation();
 
-							adb.setTitle("App selection for action "
+							adb.setTitle(activity.getString(R.string.label_confirm_title) + " " 
 									+ parentAssociation.getKeyName());
-							String message = "App : "
+							String message = activity.getString(R.string.label_confirm_app_name) + " : "
 									+ propertyMap.get(AppListTask.TAG_APP_NAME)
-									+ "\nPackage : "
+									+ "\n" + activity.getString(R.string.label_confirm_package_name) +  " : "
 									+ propertyMap
 											.get(AppListTask.TAG_APP_PACKAGE);
-							if (activity.getParentAssociation().getAppName() != null) {
-								message += "\n" + "\nPrevious App : "
+							if (parentAssociation.getAppName() != null) {
+								message += "\n\n" + activity.getString(R.string.label_confirm_app_old_name) + " : "
 										+ parentAssociation.getAppName();
 							}
 							adb.setMessage(message);
-							adb.setPositiveButton("Set & Launch",
+							adb.setPositiveButton(activity.getString(R.string.label_confirm_action_set_launch),
 									new DialogInterface.OnClickListener() {
 
 										@Override
 										public void onClick(
 												DialogInterface dialog,
 												int which) {
-											AppAssociation parentAssociation = activity
-													.getParentAssociation();
 											parentAssociation.setAppName(propertyMap
 													.get(AppListTask.TAG_APP_NAME));
 											parentAssociation
@@ -180,15 +178,13 @@ public class AppListTask extends AsyncTask<Void, Integer, SimpleAdapter> {
 															.get(AppListTask.TAG_APP_PACKAGE));
 										}
 									});
-							adb.setNeutralButton("Set",
+							adb.setNeutralButton(activity.getString(R.string.label_confirm_action_set),
 									new DialogInterface.OnClickListener() {
 
 										@Override
 										public void onClick(
 												DialogInterface dialog,
 												int which) {
-											AppAssociation parentAssociation = activity
-													.getParentAssociation();
 											parentAssociation.setAppName(propertyMap
 													.get(AppListTask.TAG_APP_NAME));
 											parentAssociation
@@ -204,7 +200,7 @@ public class AppListTask extends AsyncTask<Void, Integer, SimpleAdapter> {
 											activity.finish();
 										}
 									});
-							adb.setNegativeButton("Cancel", null);
+							adb.setNegativeButton(activity.getString(R.string.label_confirm_action_cancel), null);
 							adb.show();
 						}
 					});
