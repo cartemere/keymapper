@@ -2,6 +2,7 @@
 
 import java.util.ArrayList;
 
+import com.cartemere.car.keymapper.action.KeyMapperAction;
 import com.cartemere.car.keymapper.cache.AppAssociationCache;
 import com.cartemere.car.keymapper.model.AppAssociation;
 
@@ -96,9 +97,9 @@ public class MainActivity extends Activity {
                viewHolder = new ViewHolder();
                LayoutInflater inflater = LayoutInflater.from(getContext());
                convertView = inflater.inflate(R.layout.app_main_fragment, parent, false);
-               viewHolder.btnChooseApp = (Button) convertView.findViewById(R.id.button_choose_app);
+               viewHolder.btnKey = (Button) convertView.findViewById(R.id.button_key);
                viewHolder.appTitle = (TextView) convertView.findViewById(R.id.label_app_title);
-               viewHolder.appName = (TextView) convertView.findViewById(R.id.label_app_package);
+               viewHolder.btnApp = (Button) convertView.findViewById(R.id.button_app_package);
                viewHolder.btnSwitch = (Switch) convertView.findViewById(R.id.button_app_enable);
                convertView.setTag(viewHolder);
             } else {
@@ -106,15 +107,13 @@ public class MainActivity extends Activity {
             }
             // Populate the data into the template view using the data object
             
-            viewHolder.appTitle.setText(getString(R.string.label_app_name_title) + association.getKeyName());
+            viewHolder.appTitle.setText(getString(R.string.label_app_name_title) + " " + association.getKeyName());
             String appName = association.getAppName();
             if (appName == null) {
             	appName = getString(R.string.label_app_name_default);
             }
-            viewHolder.appName.setText(appName);
-            
-            viewHolder.btnChooseApp.setText(association.getKeyName());
-            viewHolder.btnChooseApp.setOnClickListener(new View.OnClickListener() {
+            viewHolder.btnApp.setText(appName);
+            viewHolder.btnApp.setOnClickListener(new View.OnClickListener() {
     			@Override
     			public void onClick(View v) {
     				// move to App selection activity
@@ -122,6 +121,17 @@ public class MainActivity extends Activity {
     		    	intent.setClass(referenceActivity, AppSelectionActivity.class);
     		    	intent.putExtra(PROPERTY_ASSOCIATION, association);
     		    	startActivity(intent);
+    				
+    			}
+    		});
+            
+            viewHolder.btnKey.setText(association.getKeyName());
+            viewHolder.btnKey.setOnClickListener(new View.OnClickListener() {
+    			@Override
+    			public void onClick(View v) {
+    				if (association.getAppName() != null) {
+    					KeyMapperAction.launchSelectedApp(getApplicationContext(), association.getAppPackageName());
+    				}
     			}
     		});
 
@@ -142,16 +152,16 @@ public class MainActivity extends Activity {
         }
         
     	class ViewHolder {
-        	Button btnChooseApp;
+        	Button btnKey;
             TextView appTitle;
-            TextView appName;
+            Button btnApp;
             Switch btnSwitch;
             
 			@Override
 			public String toString() {
-				return "ViewHolder [btnChooseApp=" + btnChooseApp
+				return "ViewHolder [btnChooseApp=" + btnKey
 						+ ", appTitle=" + appTitle + ", appName="
-						+ appName + ", btnSwitch=" + btnSwitch + "]";
+						+ btnApp + ", btnSwitch=" + btnSwitch + "]";
 			}
         }
     }

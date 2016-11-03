@@ -12,24 +12,25 @@ public class KeyMapperAction {
 	public static void launchSelectedApp(Context context, String packageName) {
 		// check if target activity is already running
 		Intent launchIntent = null;
-		ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		//ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		String className = null;
-		for (ActivityManager.RunningTaskInfo info : am.getRunningTasks(9999)) {
-			if (packageName.equals(info.baseActivity.getPackageName())) {
-				className = info.baseActivity.getClassName();
-				launchIntent = new Intent();
-				launchIntent.setClassName(packageName, className);
-				launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				Log.i(LOG_KEY, "found app " + packageName + " running in background");
-				break;
-			}
-		}
+//		for (ActivityManager.RunningTaskInfo info : am.getRunningTasks(9999)) {
+//			if (packageName.equals(info.baseActivity.getPackageName())) {
+//				className = info.baseActivity.getClassName();
+//				launchIntent = new Intent();
+//				launchIntent.setClassName(packageName, className);
+//				//launchIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+//				Log.i(LOG_KEY, "found app " + packageName + " running in background");
+//				break;
+//			}
+//		}
 		if (className == null) {
 			// launch target activity
 			launchIntent = context.getPackageManager().getLaunchIntentForPackage(
 					packageName);
 			Log.i(LOG_KEY, "launch app " + packageName + " from scratch");
 		}
+		launchIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		context.startActivity(launchIntent);
 	}
 }
